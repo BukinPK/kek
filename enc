@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ $1 == '-n' ]; then
+	dec=$2
+	enc=$2.enc
+	printf "Введите парольную фразу: "
+	read -s pass
+	printf "***\n"
+	openssl aes-128-cbc -e -in $dec -out $enc -k $pass
+	cp $enc $dec
+	rm $enc
+else
+	enc=$1
+	dec=$1.dec
+	printf "Введите парольную фразу: "
+	read -s pass
+	printf "***\n"
+	openssl aes-128-cbc -d -in $enc -out $dec -k $pass
+	vi $dec
+	openssl aes-128-cbc -e -in $dec -out $enc -k $pass
+	rm $dec
+fi

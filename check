@@ -1,0 +1,17 @@
+#!/bin/bash
+while read ip
+do
+printf "%-20s is " $ip
+#echo "Start http-proxy check"
+if [[ $(echo $ip |cut -f1 -d:) == $(curl -m5 -s --proxy $ip check-host.net/ip) ]]
+then printf "\033[0;32m%s\033[0m\n" "http"
+#echo "Start socks4 check"
+elif [[ $(echo $ip |cut -f1 -d:) == $(curl -m5 -s --socks4 $ip check-host.net/ip) ]]
+then printf "\033[0;32m%s\033[0m\n" "socks4"
+#echo "Start socks5 check"
+elif [[ $(echo $ip |cut -f1 -d:) == $(curl -m5 -s --socks5 $ip check-host.net/ip) ]]
+then printf "%s\n" "\033[0;32msocks5\033[0m"
+#echo "Bad ip"
+else printf "\033[0;31mbad\033[0m\n"
+fi
+done

@@ -42,7 +42,7 @@ def findNonce(newBlock):
 
 def checkValidBlock(prevBlock, newBlock):
 	if prevBlock.index + 1 != newBlock.index:
-		print('Неверный индекс')
+		print('Неверный индекс %i != %i' % (prevBlock.index + 1, newBlock.index))
 		return False
 	elif prevBlock.hash != newBlock.prevHash:
 		print('Неверный хеш предыдущего блока')
@@ -68,25 +68,49 @@ def checkValidChain(newBlockchain):
 	"""
 	goodPart = []
 	for block in newBlockchain[::-1]:
-		if block.index > blockchain[-1].index or block.prevHash != blockchain[block.index-1].hash and block.index != 0:
-			if checkValidBlock(newBlockchain[(newBlockchain.index(block))-1], block):
+
+		if block.index-1 > blockchain[-1].index:
+			prevBlock = newBlockchain[(newBlockchain.index(block))-1]
+			if checkValidBlock(prevBlock, block):
 				goodPart.append(block)
 				continue
 			return False
-		elif goodPart: return list(reversed(goodPart))
-		else: return False
+
+		if block.prevHash != blockchain[block.index-1].hash:
+			prevBlock = newBlockchain[(newBlockchain.index(block))-1]
+			if checkValidBlock(prevBlock, block):
+				goodPart.append(block)
+				continue
+			return False
+		else:
+			prevBlock = blockchain[block.index-1]
+			if checkValidBlock(prevBlock, block):
+				goodPart.append(block)
+				break
+			return False
+
+	if goodPart: 
+		goodPart = list(reversed(goodPart))
+		print(goodPart[0].index, goodPart[0].index-1)
+		if goodPart[0].prevHash == blockchain[goodPart[0].index-1].hash:
+			return goodPart
+	else: return False
 
 def replaceChain(newBlockchain):
-	if len(newBlockchain)-1 > blockchain[-1].index:
+"""
+Добавляет часть цепочки к актуальной.
+
+"""
+	if newBlockchain[-1].index > blockchain[-1].index:
 		goodPart = checkValidChain(newBlockchain)
 		if goodPart:		
-			for index in range(blockchain[-1].index - goodPart[0].index):
+			for index in range(blockchain[-1].index - goodPart[0].index+1):
 				del blockchain[-1]
 			blockchain.extend(goodPart)
 			print('Цепочка успешно импортирована')
-		else: print('Цепочка не валидна')
+		else: print('Цепочка не валидна ', goodPart)
 		#Рассказать всем	
-	else: print("Цепочка коротче, либо равна актуальной на %s блоков" % (blockchain[-1].index - (len(newBlockchain)-1)))
+	else: print("Цепочка коротче, либо равна актуальной на %s блоков" % (blockchain[-1].index - newBlockchain[-1].index))
 
 #Сохранение и загрузка цепочки
 def chainExport(saved_chain='saved_chain.json'):

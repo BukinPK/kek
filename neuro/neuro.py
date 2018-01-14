@@ -1,9 +1,8 @@
 import string, os
-from PIL import Image
+from img import load_image, save_image
 
 class Neuron:
 	weight = 0
-	#ВАЖНО!!! Убрать ссылки с массивов
 	def __init__(self, name, input=[0 for x in range(30*30)], model=[255 for x in range(30*30)], count=0):
 		self.name = name
 		self.input = input
@@ -13,9 +12,22 @@ class Neuron:
 		return 'Нейрон:%s Уверенность:%i Модель:%i' % (self.name, self.weight, self.count)
 	@property
 	def add(self):
+		temp = []
 		for num, pixel in enumerate(self.model):
-			self.model[num] = int((pixel * self.count + self.input[num]) / (self.count + 1))
+			temp.append(int((pixel * self.count + self.input[num]) / (self.count + 1)))
+		self.model = temp
 		self.count += 1
+	def save(self, path='pic/model/'):
+		for model in os.listdir(path):
+			if self.name.lower() == model[0]: os.remove(path+model)
+		save_image(self.model, path+self.name.lower()+str(self.count)+'.png')
+	def load(self, path='pic/model/'):
+		for pic in os.listdir(path):
+			if pic[0] == self.name.lower():
+				self.model = load_image(path+pic)
+				self.count = int(pic[1:].split('.png')[0])
+				break
+			
 
 class Web:
 	__view = []
@@ -29,7 +41,7 @@ class Web:
 		return self.__view[key]
 
 	def insert(self, pic):
-		for neuron in self: neuron.input = pic
+		for neuron in self: neuron.input = load_image(pic)
 
 	def check(self):
 		for neuron in self:
@@ -46,59 +58,25 @@ class Web:
 		for neuron in self:
 			print(neuron)
 
-	def learn(self):
-		path='pic/input/'
+	def learn(self, path='pic/input/'):
 		for pic in os.listdir(path):
 			for neuron in self:
 				if neuron.name == pic[0].upper():
 					neuron.input = load_image(path+pic)
 					neuron.add
+	def save(self, path='pic/model/'):
+		for neuron in self:
+			if neuron.count > 0:
+				neuron.save(path)
+	def load(self, path='pic/model/'):
+		for neuron in self:
+			neuron.load(path)
 
-#def make_web(elements=string.ascii_uppercase):
-#	web = []
-#	for item in elements:
-#		web.append(Neuron(item))
-#	return web
-
-def pic_bolder(pic):
-	min = pic[0]
-	for pixel in pic:
-		if pixel < min: min = pixel
-	for num,pixel in enumerate(pic):
-		if pixel < 255: pic[num] = pic[num]-min
-	return pic
-
-#def check(web):
-#	for neuron in web:
-#		for pixel in range(900):
-#			if neuron.input[pixel] < 250 and abs(neuron.model[pixel] - neuron.input[pixel]) < 100:
-#				neuron.weight += 1	
-#	max = web[0]
-#	for neuron in web:
-#		if neuron.weight > max.weight: max = neuron
-#	return max
-
-#def learn(web):
-#	pass
-def load_model(path):
-	pass
-
-def load_image(path):
-	pic = Image.open(path) #Загрузка
-	return pic_bolder([int(y) for y in pic.tobytes()]) #Преобразование картинки в массив
-
-def save(pic, path):
-	pic = Image.frombytes('L', (30,30),bytes(pic)) #Преобразование массива в картинку
-	pic.save(path) #Сохранение
-
-#def test(web):
-#        path='pic/input/'
-#        for pic in os.listdir(path):
-#                for neuron in web:
-#                        if neuron.name == pic[0].upper():
-#                                neuron.input = load_image(path+pic)
-#                                neuron.add
-#
-
-#save(pic, 'pic/out.png')
-
+if __name__ == '__main__':
+	from sys import argv
+	w = Web()
+	w.learn()
+	w.insert(argv[1])
+	w.check()
+	w.save()
+	w.result()

@@ -1,0 +1,63 @@
+#!/bin/bash
+function pre {
+	find /dev -type c,b >/tmp/devfinder1
+	read -p "Нажмите ENTER после изменения содержимого устройств" 
+	find /dev -type c,b >/tmp/devfinder2
+}
+function post {
+	rm /tmp/devfinder1 /tmp/devfinder2
+}
+function tester {
+	check=`diff /tmp/devfinder1 /tmp/devfinder2|sed -n -e /\</p -e /\>/p`
+
+	if [ -z $check ]; then
+	echo "Различий нет"
+	exit 0
+	fi
+}
+
+function main {
+	pre
+	tester
+	diff /tmp/devfinder1 /tmp/devfinder2 --color=always\
+		|sed -n -e /\</p -e /\>/p
+	post
+}
+function plain {
+	pre
+	tester
+	diff /tmp/devfinder1 /tmp/devfinder2\
+		|sed -n -e /\</p -e /\>/p\
+		|sed -e s/\<' '//g -e s/\>' '//g
+	post
+}
+function plusl {
+	pre
+	tester
+	diff /tmp/devfinder1 /tmp/devfinder2\
+		|sed -n -e /\</p -e /\>/p\
+		|sed -e s/\<' '//g -e s/\>' '//g\
+		|xargs ls -l --color=always
+}
+function halp {
+	echo -e "
+		-h = Вывод краткой справки\n\
+		-l = Вывести подробно в формате ls\n\
+		-s = Тихий режим (ещё не продуман)"
+}
+
+if [ $# = 0 ]; then
+	main
+else
+	while getopts "lhp" opt
+	do
+		case $opt in 
+			h)halp;;
+			l)plusl;;
+			p)plain;;
+		esac
+	done
+	shift $(($OPTIND - 1))
+fi
+
+exit 0

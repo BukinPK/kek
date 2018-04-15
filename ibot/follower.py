@@ -1,6 +1,7 @@
 from random import randrange
 from time import sleep
 import json
+from ibot import basedir
 
 class Follower:
 	
@@ -13,7 +14,10 @@ class Follower:
 	def getInfo(self):
 		self.api.getUsernameInfo(self.id)
 		self.info = self.api.LastJson['user']
-		self.username = self.info['username']
+		try:
+			self.username = self.info['username']
+		except AttributeError:
+			self.print_info()
 	def getFeed(self):
 		self.api.getUserFeed(self.id)
 		self.feed = self.api.LastJson
@@ -58,7 +62,7 @@ class Follower:
 			self.is_shit_eater is True or \
 			self.activity_overload is True or \
 			self.is_business is True:
-				with open('bot_data/bad_user', 'a') as f:
+				with open(basedir+'bot_data/bad_user', 'a') as f:
 					f.write(str(self.id)+'\n')
 				return False
 		else: return True
@@ -78,7 +82,7 @@ class Follower:
 
 	def follow(self):
 		self.api.follow(self.id)
-		with open('bot_data/user_fol', 'a') as f:
+		with open(basedir+'bot_data/user_fol', 'a') as f:
 			f.write(str(self.id)+'\n')
 
 	def randomPicLike(self):
@@ -98,14 +102,14 @@ class Follower:
 			else: 
 				picture_id = media_choice['pk']
 				self.api.like(picture_id)
-				with open('bot_data/pic_like', 'a') as f:
+				with open(basedir+'bot_data/pic_like', 'a') as f:
 					f.write(str(picture_id)+'\n')
 				sleep(randrange(2, self.like_wait))
 				self.liked_pics.append(media_number+1)
 
 	def action(self):
 		if self.checkFriendship() is True:
-			print('is friend [%s]:' % self.username)
+			print('is friend [lel]:') #!!!!!!!!! USERNAME NOT IN LIST !!!!!!!!!!!
 			return False
 		if self.checkInfo() is False:
 			print('bad info [%s]:' % self.username, end=' ')

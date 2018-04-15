@@ -1,11 +1,12 @@
 #!/usr/bin/python3
-
-from os import mkdir
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))+'/'
 from InstagramAPI import InstagramAPI
 from target import Target
 from random import randrange
 from time import sleep
 from getpass import getpass
+
 
 class Bot:
 	
@@ -13,7 +14,7 @@ class Bot:
 	passwd = ''
 
 	def __init__(self):
-		try: mkdir('bot_data')
+		try: os.mkdir(basedir+'bot_data')
 		except FileExistsError: pass
 
 	def login(self):
@@ -23,9 +24,12 @@ class Bot:
 		if self.api.login() is True:
 			self.getUserId = self.__getUserId
 			self.makeTarget = self.__makeTarget
+			return True
 		else:
+			self.my_name = ''
+			self.passwd = ''
 			del self.api
-			return 'Fail to login'
+			return False
 
 	def __getUserId(self, username):
 		self.api.searchUsername(username)

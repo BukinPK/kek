@@ -1,6 +1,7 @@
 from follower import Follower
 from random import randrange
 from time import sleep
+from ibot import basedir
 
 class Target:
 	
@@ -40,15 +41,18 @@ class Target:
 			passed = 0
 			for file in ('bot_data/user_fol', 'bot_data/bad_user'):
 				try:
-					with open(file, 'r') as f:
+					with open(basedir+file, 'r') as f:
 						for cached_follower in f.readlines():
 							cached_follower = int(cached_follower)
 							self.cache.append(cached_follower)
+							if 'followers' not in dir(self):
+								self.getFollowerList()
 							for num, follower in enumerate(self.followers):
 								if follower == cached_follower:
 									del self.followers[num]
 									passed += 1
-				except FileNotFoundError: pass
+				except FileNotFoundError: 
+					print('Bot data is clear.')
 			print('passed in checker:', passed)
 
 	def followerSelect(self, follower_id):

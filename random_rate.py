@@ -1,7 +1,7 @@
 from random import randint as rand
 from sys import argv
 
-def repeat_count(try_count, debug=True):
+def repeat_count(try_count, debug=False):
 	global_storage = {}
 	storage = 0
 	last_try = None
@@ -17,17 +17,14 @@ def repeat_count(try_count, debug=True):
 				if debug: print(this_try, 'kek')
 				try: global_storage[1] += 1
 				except KeyError: global_storage[1] = 1
-			try:
-				global_storage[storage] += 1
-			except KeyError: 
-				global_storage[storage] = 1
+			try: global_storage[storage] += 1
+			except KeyError: global_storage[storage] = 1
 			storage = 1
-		else:
-			storage += 1
+		else: storage += 1
 		last_try = this_try
 
 	return global_storage
 
-storage = repeat_count(int(argv[1]))
+storage = repeat_count(int(argv[1]), debug=True)
 for key in sorted(storage.keys()):
 	print('%-3i подряд выпало %i раз' % (key, storage[key]))

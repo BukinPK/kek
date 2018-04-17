@@ -14,7 +14,7 @@ def repeat_count(try_count, debug=False):
 				storage += 1
 			if debug: print(str(last_try)*storage)
 			if try_count == 0 and this_try != last_try:
-				if debug: print(this_try, 'kek')
+				if debug: print(this_try)
 				try: global_storage[1] += 1
 				except KeyError: global_storage[1] = 1
 			try: global_storage[storage] += 1

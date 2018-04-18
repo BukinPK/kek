@@ -1,13 +1,13 @@
 from random import randint as rand
 from sys import argv
 
-def repeat_count(try_count, debug=False):
+def repeat_count(try_count, maximum=1, debug=False):
 	global_storage = {}
 	storage = 0
 	last_try = None
 	while try_count > 0:	
 		try_count -= 1
-		this_try = rand(0,1)
+		this_try = rand(0,maximum)
 
 		if this_try is not last_try and last_try is not None or try_count == 0:
 			if this_try == last_try:
@@ -25,6 +25,6 @@ def repeat_count(try_count, debug=False):
 
 	return global_storage
 
-storage = repeat_count(int(argv[1]), debug=True)
+storage = repeat_count(*map(int,argv[1:]))
 for key in sorted(storage.keys()):
 	print('%-3i подряд выпало %i раз' % (key, storage[key]))
